@@ -26,6 +26,14 @@ public class Adopter {
 
     @Override
     public String toString() {
-        return name + " (" + phone + ")";
+        if (adoptedPets.isEmpty()) {
+            return name + " (" + phone + ") - няма осиновени животни";
+        }
+        StringBuilder petsList = new StringBuilder();
+        for (Pet p : adoptedPets) {
+            if (petsList.length() > 0) petsList.append(", ");
+            petsList.append(p.getName());
+        }
+        return name + " (" + phone + ") - осиновени животни: [" + petsList.toString() + "]";
     }
 }
