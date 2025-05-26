@@ -61,6 +61,24 @@ public class ShelterManager {
         }
     }
 
+    // Нова добавена функция: осиновяване на животно от осиновител
+    public boolean adoptPet(String adopterName, String petName) {
+        Adopter adopter = findAdopterByName(adopterName);
+        Pet pet = findPetByName(petName);
+        if (adopter == null) {
+            System.out.println("Няма осиновител с име " + adopterName);
+            return false;
+        }
+        if (pet == null) {
+            System.out.println("Няма животно с име " + petName);
+            return false;
+        }
+        adopter.adoptPet(pet);
+        pets.remove(pet); // премахваме животното от приюта, защото вече е осиновено
+        System.out.println("Животното " + petName + " е осиновено от " + adopterName);
+        return true;
+    }
+
     // Запис на животните в текстов файл
     public void savePetsToFile(String filename) {
         try (PrintWriter pw = new PrintWriter(new FileWriter(filename))) {

@@ -20,6 +20,11 @@ public class Adopter {
         adoptedPets.add(pet);
     }
 
+    // Нова добавена функция за премахване на осиновено животно
+    public boolean removePet(Pet pet) {
+        return adoptedPets.remove(pet);
+    }
+
     public ArrayList<Pet> getAdoptedPets() {
         return adoptedPets;
     }

@@ -21,7 +21,7 @@ public class PetShelterGUI extends JFrame {
         manager.loadAdoptersFromFile("adopters.txt");
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(7, 2));
+        panel.setLayout(new GridLayout(8, 2));  // Увеличено с 1 ред за нов бутон
 
         JButton btnAddPet = new JButton("Добави животно");
         JButton btnViewPets = new JButton("Покажи всички животни");
@@ -30,6 +30,7 @@ public class PetShelterGUI extends JFrame {
         JButton btnViewAdopters = new JButton("Покажи всички осиновители");
         JButton btnSearchPet = new JButton("Търси животно по име");
         JButton btnSearchAdopter = new JButton("Търси осиновител по име");
+        JButton btnAdoptPet = new JButton("Осинови животно");  // НОВ бутон
 
         panel.add(btnAddPet);
         panel.add(btnViewPets);
@@ -38,104 +39,88 @@ public class PetShelterGUI extends JFrame {
         panel.add(btnViewAdopters);
         panel.add(btnSearchPet);
         panel.add(btnSearchAdopter);
+        panel.add(btnAdoptPet);
 
         add(panel, BorderLayout.NORTH);
+        output.setEditable(false);
         add(new JScrollPane(output), BorderLayout.CENTER);
 
-        // Добавяне на животно
+        // Обработчици на събития
+
         btnAddPet.addActionListener(_ -> {
-            String type = JOptionPane.showInputDialog("Вид:");
-            String name = JOptionPane.showInputDialog("Име:");
-            String ageStr = JOptionPane.showInputDialog("Възраст:");
-            String health = JOptionPane.showInputDialog("Здраве:");
-
-            try {
-                if (type == null || name == null || ageStr == null || health == null
-                        || type.isEmpty() || name.isEmpty() || ageStr.isEmpty() || health.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Моля, попълни всички полета.");
-                    return;
-                }
-                int age = Integer.parseInt(ageStr);
-                manager.addPet(new Pet(type, name, age, health));
-                output.append("Добавено животно: " + name + "\n");
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Невалидни данни.");
-            }
+            String type = JOptionPane.showInputDialog("Въведете вид животно:");
+            String name = JOptionPane.showInputDialog("Въведете име:");
+            int age = Integer.parseInt(JOptionPane.showInputDialog("Въведете възраст:"));
+            String health = JOptionPane.showInputDialog("Въведете здравословен статус:");
+            manager.addPet(new Pet(type, name, age, health));
+            output.setText("Животното е добавено.");
         });
 
-        // Покажи всички животни
         btnViewPets.addActionListener(_ -> {
-            output.setText("");
+            StringBuilder sb = new StringBuilder();
             for (Pet p : manager.getPets()) {
-                output.append(p.toString() + "\n");
+                sb.append(p.toString()).append("\n");
             }
+            output.setText(sb.toString());
         });
 
-        // Сортирай животните по възраст
         btnSort.addActionListener(_ -> {
             manager.sortPetsByAge();
-            output.append("Животните бяха сортирани по възраст.\n");
+            output.setText("Животните са сортирани по възраст.");
         });
 
-        // Добави осиновител
         btnAddAdopter.addActionListener(_ -> {
-            String name = JOptionPane.showInputDialog("Име на осиновителя:");
-            String phone = JOptionPane.showInputDialog("Телефон:");
-
-            if (name == null || phone == null || name.isEmpty() || phone.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Моля, попълни всички полета.");
-                return;
-            }
+            String name = JOptionPane.showInputDialog("Въведете име на осиновителя:");
+            String phone = JOptionPane.showInputDialog("Въведете телефон на осиновителя:");
             manager.addAdopter(new Adopter(name, phone));
-            output.append("Добавен осиновител: " + name + "\n");
+            output.setText("Осиновителят е добавен.");
         });
 
-        // Покажи всички осиновители
         btnViewAdopters.addActionListener(_ -> {
-            output.setText("");
+            StringBuilder sb = new StringBuilder();
             for (Adopter a : manager.getAdopters()) {
-                output.append(a.toString() + "\n");
+                sb.append(a.toString()).append("\n");
             }
+            output.setText(sb.toString());
         });
 
-        // Търси животно по име
         btnSearchPet.addActionListener(_ -> {
-            String name = JOptionPane.showInputDialog("Име на животно за търсене:");
-            if (name == null || name.isEmpty()) {
-                return;
-            }
-            Pet pet = manager.findPetByName(name);
-            output.setText("");
-            if (pet != null) {
-                output.append("Намеренo животно: " + pet.toString() + "\n");
-            } else {
-                output.append("Няма животно с име " + name + "\n");
-            }
+            String name = JOptionPane.showInputDialog("Въведете име на животно за търсене:");
+            Pet p = manager.findPetByName(name);
+            if (p != null) output.setText(p.toString());
+            else output.setText("Животното не е намерено.");
         });
 
-        // Търси осиновител по име
         btnSearchAdopter.addActionListener(_ -> {
-            String name = JOptionPane.showInputDialog("Име на осиновител за търсене:");
-            if (name == null || name.isEmpty()) {
-                return;
-            }
-            Adopter adopter = manager.findAdopterByName(name);
-            output.setText("");
-            if (adopter != null) {
-                output.append("Намерен осиновител: " + adopter.toString() + "\n");
+            String name = JOptionPane.showInputDialog("Въведете име на осиновител за търсене:");
+            Adopter a = manager.findAdopterByName(name);
+            if (a != null) output.setText(a.toString());
+            else output.setText("Осиновителят не е намерен.");
+        });
+
+        // НОВ обработчик за осиновяване
+        btnAdoptPet.addActionListener(_ -> {
+            String adopterName = JOptionPane.showInputDialog("Въведете име на осиновител:");
+            String petName = JOptionPane.showInputDialog("Въведете име на животно за осиновяване:");
+            if (manager.adoptPet(adopterName, petName)) {
+                output.setText("Осиновяването е успешно.");
             } else {
-                output.append("Няма осиновител с име " + name + "\n");
+                output.setText("Осиновяването не бе успешно.");
             }
         });
 
-        // Запис при затваряне на прозореца
+        // При затваряне на прозореца, записваме данните в файловете
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 manager.savePetsToFile("pets.txt");
                 manager.saveAdoptersToFile("adopters.txt");
             }
         });
+    }
 
-        setVisible(true);
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new PetShelterGUI().setVisible(true);
+        });
     }
 }
