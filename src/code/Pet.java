@@ -13,10 +13,33 @@ public class Pet {
         this.healthStatus = healthStatus;
     }
 
-    public String getType() { return type; }
-    public String getName() { return name; }
-    public int getAge() { return age; }
-    public String getHealthStatus() { return healthStatus; }
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getHealthStatus() {
+        return healthStatus;
+    }
 
     public void setHealthStatus(String healthStatus) {
         this.healthStatus = healthStatus;
@@ -24,6 +47,6 @@ public class Pet {
 
     @Override
     public String toString() {
-        return type + " - " + name + ", възраст: " + age + ", здраве: " + healthStatus;
+        return "Животно: " + type + ", Име: " + name + ", Възраст: " + age + ", Здравословно състояние: " + healthStatus;
     }
 }

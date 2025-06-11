@@ -12,7 +12,7 @@ public class PetShelterGUI extends JFrame {
 
     public PetShelterGUI() {
         setTitle("Приют за животни");
-        setSize(600, 400);
+        setSize(600, 450);  // малко по-голям, заради новите бутони
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -21,7 +21,7 @@ public class PetShelterGUI extends JFrame {
         manager.loadAdoptersFromFile("adopters.txt");
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(8, 2));  // Увеличено с 1 ред за нов бутон
+        panel.setLayout(new GridLayout(10, 2));  // Добавени още редове
 
         JButton btnAddPet = new JButton("Добави животно");
         JButton btnViewPets = new JButton("Покажи всички животни");
@@ -30,7 +30,13 @@ public class PetShelterGUI extends JFrame {
         JButton btnViewAdopters = new JButton("Покажи всички осиновители");
         JButton btnSearchPet = new JButton("Търси животно по име");
         JButton btnSearchAdopter = new JButton("Търси осиновител по име");
-        JButton btnAdoptPet = new JButton("Осинови животно");  // НОВ бутон
+        JButton btnAdoptPet = new JButton("Осинови животно");
+
+        // Нови бутони
+        JButton btnEditPet = new JButton("Редактирай животно");
+        JButton btnDeletePet = new JButton("Изтрий животно");
+        JButton btnEditAdopter = new JButton("Редактирай осиновител");
+        JButton btnDeleteAdopter = new JButton("Изтрий осиновител");
 
         panel.add(btnAddPet);
         panel.add(btnViewPets);
@@ -41,6 +47,11 @@ public class PetShelterGUI extends JFrame {
         panel.add(btnSearchAdopter);
         panel.add(btnAdoptPet);
 
+        panel.add(btnEditPet);
+        panel.add(btnDeletePet);
+        panel.add(btnEditAdopter);
+        panel.add(btnDeleteAdopter);
+
         add(panel, BorderLayout.NORTH);
         output.setEditable(false);
         add(new JScrollPane(output), BorderLayout.CENTER);
@@ -50,7 +61,13 @@ public class PetShelterGUI extends JFrame {
         btnAddPet.addActionListener(_ -> {
             String type = JOptionPane.showInputDialog("Въведете вид животно:");
             String name = JOptionPane.showInputDialog("Въведете име:");
-            int age = Integer.parseInt(JOptionPane.showInputDialog("Въведете възраст:"));
+            int age;
+            try {
+                age = Integer.parseInt(JOptionPane.showInputDialog("Въведете възраст:"));
+            } catch (Exception e) {
+                output.setText("Невалидна възраст.");
+                return;
+            }
             String health = JOptionPane.showInputDialog("Въведете здравословен статус:");
             manager.addPet(new Pet(type, name, age, health));
             output.setText("Животното е добавено.");
@@ -98,7 +115,6 @@ public class PetShelterGUI extends JFrame {
             else output.setText("Осиновителят не е намерен.");
         });
 
-        // НОВ обработчик за осиновяване
         btnAdoptPet.addActionListener(_ -> {
             String adopterName = JOptionPane.showInputDialog("Въведете име на осиновител:");
             String petName = JOptionPane.showInputDialog("Въведете име на животно за осиновяване:");
@@ -109,7 +125,73 @@ public class PetShelterGUI extends JFrame {
             }
         });
 
-        // При затваряне на прозореца, записваме данните в файловете
+        // Нови обработчици:
+
+        btnEditPet.addActionListener(_ -> {
+            String oldName = JOptionPane.showInputDialog("Въведете името на животното за редакция:");
+            if (oldName == null) return;
+            Pet pet = manager.findPetByName(oldName);
+            if (pet == null) {
+                output.setText("Животното не е намерено.");
+                return;
+            }
+            String newType = JOptionPane.showInputDialog("Нов вид:", pet.getType());
+            String newName = JOptionPane.showInputDialog("Ново име:", pet.getName());
+            int newAge;
+            try {
+                newAge = Integer.parseInt(JOptionPane.showInputDialog("Нова възраст:", pet.getAge()));
+            } catch (Exception e) {
+                output.setText("Невалидна възраст.");
+                return;
+            }
+            String newHealth = JOptionPane.showInputDialog("Нов здравословен статус:", pet.getHealthStatus());
+
+            if (manager.editPet(oldName, newType, newName, newAge, newHealth)) {
+                output.setText("Животното е редактирано успешно.");
+            } else {
+                output.setText("Грешка при редакция.");
+            }
+        });
+
+        btnDeletePet.addActionListener(_ -> {
+            String name = JOptionPane.showInputDialog("Въведете името на животното за изтриване:");
+            if (name == null) return;
+            if (manager.removePetByName(name)) {
+                output.setText("Животното е изтрито.");
+            } else {
+                output.setText("Животното не е намерено.");
+            }
+        });
+
+        btnEditAdopter.addActionListener(_ -> {
+            String oldName = JOptionPane.showInputDialog("Въведете името на осиновителя за редакция:");
+            if (oldName == null) return;
+            Adopter adopter = manager.findAdopterByName(oldName);
+            if (adopter == null) {
+                output.setText("Осиновителят не е намерен.");
+                return;
+            }
+            String newName = JOptionPane.showInputDialog("Ново име:", adopter.getName());
+            String newPhone = JOptionPane.showInputDialog("Нов телефон:", adopter.getPhone());
+
+            if (manager.editAdopter(oldName, newName, newPhone)) {
+                output.setText("Осиновителят е редактиран успешно.");
+            } else {
+                output.setText("Грешка при редакция.");
+            }
+        });
+
+        btnDeleteAdopter.addActionListener(_ -> {
+            String name = JOptionPane.showInputDialog("Въведете името на осиновителя за изтриване:");
+            if (name == null) return;
+            if (manager.removeAdopterByName(name)) {
+                output.setText("Осиновителят е изтрит.");
+            } else {
+                output.setText("Осиновителят не е намерен.");
+            }
+        });
+
+        // Запис при затваряне
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 manager.savePetsToFile("pets.txt");
